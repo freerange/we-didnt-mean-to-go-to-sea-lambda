@@ -72,8 +72,46 @@ const handlers = {
     req.end();
   },
   'Move': function() {
-    this.response.speak('Move intent');
-    this.emit(':responseReady');
+    var gameCommand = this.event.request.intent.slots.direction.value;
+
+    var postData = {
+      'command': gameCommand,
+      'state': this.attributes.state
+    };
+
+    const options = {
+      protocol: 'https:',
+      hostname: 'we-didnt-mean-to-go-to-sea.herokuapp.com',
+      port: 443,
+      path: '/',
+      method: 'POST'
+    };
+
+    var self = this;
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.setEncoding('utf8');
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+      res.on('end', () => {
+        var parsedOutput = JSON.parse(data);
+        self.attributes.state = parsedOutput.state;
+
+        var text = parsedOutput.ack;
+        this.response.speak(text);
+        this.response.shouldEndSession(false);
+        this.emit(':responseReady');
+      });
+    });
+
+    req.on('error', (e) => {
+      console.error(`problem with request: ${e.message}`);
+    });
+
+    // write data to request body
+    req.write(JSON.stringify(postData));
+    req.end();
   }
 }
 
