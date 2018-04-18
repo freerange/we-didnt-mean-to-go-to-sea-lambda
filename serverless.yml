@@ -58,6 +58,8 @@ provider:
 functions:
   game:
     handler: handler.game
+    events:
+      - alexaSkill: amzn1.ask.skill.e12f9983-ae2b-4fd7-a040-26ce6d38024b
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
